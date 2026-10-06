@@ -149,18 +149,11 @@ const inventorySlice = createSlice({
       .addCase(fetchAlerts.fulfilled, (state, action) => {
         state.alerts = action.payload;
       })
-      // .addCase(markAlertRead.fulfilled, (state, action) => {
-      //   const alert = state.alerts.find((a) => a.id === action.payload.id);
-      //   if (alert) alert.is_read = true;
-      // })
       .addCase(markAlertRead.fulfilled, (state, action) => {
         state.alerts = state.alerts.filter(
           (alert) => alert.id !== action.payload.id,
         );
       })
-      // .addCase(markAllAlertsRead.fulfilled, (state) => {
-      //   state.alerts.forEach((a) => { a.is_read = true; });
-      // })
       .addCase(markAllAlertsRead.fulfilled, (state) => {
         state.alerts = [];
       })
