@@ -72,6 +72,18 @@ app.use(cors(corsOptions));
 app.use(cookieParser());
 app.use(express.json());
 
+
+app.get("/", (req, res) => {
+  res.json({
+    name: "Commerce Dashboard API",
+    status: "online",
+    message: "Backend API is running successfully.",
+    health: "/api/health",
+  });
+});
+
+
+
 app.get('/api/health', (req, res) => res.json({ status: 'ok', time: new Date() }));
 
 // Public - issuing a token is the only thing that happens without one.
