@@ -1,0 +1,106 @@
+@import "tailwindcss";
+
+/* Tailwind v4 has no tailwind.config.js by default - dark mode strategy,
+   custom colors, and one-off design tokens are now declared right here
+   in CSS. This @custom-variant recreates v3's darkMode:'class' behavior:
+   dark: utilities apply when .dark is on <html> or an ancestor. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* @theme registers real design tokens - each --color-*, --radius-* etc.
+   below is auto-exposed as the matching utility class (bg-brand-500,
+   text-brand-600, bg-accent-red/10, rounded-xl2, ...), including
+   opacity modifiers, exactly like the old tailwind.config.js theme.extend did. */
+@theme {
+  --color-brand-50:  #f2f0ff;
+  --color-brand-100: #e6e1ff;
+  --color-brand-200: #c9beff;
+  --color-brand-300: #a68cff;
+  --color-brand-400: #8a5cff;
+  --color-brand-500: #7c3aed;
+  --color-brand-600: #6d28d9;
+  --color-brand-700: #5b21b6;
+  --color-brand-800: #4c1d95;
+  --color-brand-900: #3b1573;
+
+  --color-accent-pink:   #ec4899;
+  --color-accent-cyan:   #06b6d4;
+  --color-accent-orange: #f97316;
+  --color-accent-green:  #22c55e;
+  --color-accent-red:    #ef4444;
+
+  --color-surface-light: #f7f7fb;
+  --color-surface-dark:  #0f1117;
+  --color-card-light:    #ffffff;
+  --color-card-dark:     #171a23;
+
+  --radius-xl2: 1.25rem;
+}
+
+/* Custom one-off utilities - the v4 replacement for backgroundImage /
+   boxShadow entries that used to live in tailwind.config.js. @utility
+   makes these behave like real Tailwind utilities (composable with
+   dark:, hover:, responsive prefixes, etc). */
+@utility bg-gradient-brand {
+  background-image: linear-gradient(135deg, #7c3aed 0%, #ec4899 100%);
+}
+@utility bg-gradient-cyan {
+  background-image: linear-gradient(135deg, #06b6d4 0%, #7c3aed 100%);
+}
+@utility bg-gradient-orange {
+  background-image: linear-gradient(135deg, #f97316 0%, #ec4899 100%);
+}
+@utility bg-gradient-green {
+  background-image: linear-gradient(135deg, #22c55e 0%, #06b6d4 100%);
+}
+@utility shadow-soft {
+  box-shadow: 0 4px 24px rgba(124, 58, 237, 0.08);
+}
+@utility shadow-glow {
+  box-shadow: 0 0 24px rgba(124, 58, 237, 0.35);
+}
+
+@layer base {
+  html, body, #root {
+    height: 100%;
+  }
+  /* Tells the BROWSER (not just our own CSS) which palette to use for
+     native form-control chrome it renders itself - e.g. the calendar
+     popup on <input type="date">, and previously native <select>
+     option lists. Our own Tailwind dark: classes can't reach into that
+     native UI at all; color-scheme is the browser's own API for it.
+     Chrome defaults this native chrome to light unless told otherwise
+     (Firefox tends to infer dark from the OS even without this), which
+     is why date-picker popups (and, before the custom Dropdown
+     component, native selects) looked washed-out specifically in
+     Chrome. Tied to the same .dark class everything else already uses,
+     so this isn't a second/parallel dark-mode system. */
+  :root {
+    color-scheme: light;
+  }
+  html.dark {
+    color-scheme: dark;
+  }
+  body {
+    @apply bg-surface-light text-slate-800 transition-colors duration-300;
+  }
+  html.dark body {
+    @apply bg-surface-dark text-slate-100;
+  }
+}
+
+@layer components {
+  /* Reusable "glass card" used across the dashboard for consistency */
+  .dashboard-card {
+    @apply bg-card-light dark:bg-card-dark rounded-xl2 shadow-soft
+           border border-black/5 dark:border-white/5 p-5 transition-colors duration-300;
+  }
+
+  .stat-pill {
+    @apply text-xs font-semibold px-2 py-1 rounded-full;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    @apply bg-brand-300 dark:bg-brand-700 rounded-full;
+  }
+}
