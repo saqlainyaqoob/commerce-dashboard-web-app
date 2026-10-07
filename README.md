@@ -48,18 +48,6 @@ The project was developed with a focus on **real database-backed functionality, 
 
 ## Live Demo
 
-![Dashboard](./screenshots/ss1.png)
-
-
-
-
-![Dashboard](./screenshots/ss2.png)
-
-
-
-
-![Dashboard](./screenshots/ss3.png)
-
 
 ### Frontend
 
@@ -72,6 +60,21 @@ The project was developed with a focus on **real database-backed functionality, 
 ### Backend Health Check
 
 **https://commerce-dashboard-web-app.vercel.app/api/health**
+
+
+
+![Dashboard](./screenshots/ss1.png)
+
+
+
+
+![Dashboard](./screenshots/ss2.png)
+
+
+
+
+![Dashboard](./screenshots/ss3.png)
+
 
 ---
 
