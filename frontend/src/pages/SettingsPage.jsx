@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchSettings, updateSettings, resetSaveStatus } from '../features/settings/settingsSlice';
 import Dropdown from '../components/Dropdown';
+import useReadOnly from '../hooks/useReadOnly';
 
 const TIMEZONES = ['UTC', 'America/New_York', 'America/Chicago', 'America/Los_Angeles', 'Europe/London', 'Europe/Paris', 'Asia/Karachi', 'Asia/Kolkata', 'Asia/Tokyo'];
 
@@ -9,6 +10,7 @@ export default function SettingsPage() {
   const dispatch = useDispatch();
   const { data, status, saveStatus, saveError } = useSelector((state) => state.settings);
   const [form, setForm] = useState(null);
+  const readOnly = useReadOnly();
 
   useEffect(() => {
     if (!data) dispatch(fetchSettings());
@@ -54,6 +56,12 @@ export default function SettingsPage() {
           </p>
         </div>
 
+        {readOnly && (
+          <div className="text-sm text-slate-500 dark:text-slate-300 bg-brand-50 dark:bg-white/5 rounded-lg px-3 py-2">
+            Demo account - settings are view-only.
+          </div>
+        )}
+
         {saveStatus === 'succeeded' && (
           <div className="text-sm text-accent-green bg-accent-green/10 rounded-lg px-3 py-2">Settings saved.</div>
         )}
@@ -61,6 +69,7 @@ export default function SettingsPage() {
           <div className="text-sm text-accent-red bg-accent-red/10 rounded-lg px-3 py-2">{saveError}</div>
         )}
 
+        <fieldset disabled={readOnly} className="min-w-0 space-y-5">
         <div>
           <label className="text-xs font-semibold text-slate-400 uppercase">Store Name</label>
           <input
@@ -115,13 +124,15 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        <button
+        </fieldset>
+
+        {!readOnly && <button
           type="submit"
           disabled={saveStatus === 'loading'}
           className="w-full bg-gradient-brand text-white font-semibold text-sm px-5 py-2.5 rounded-lg shadow-glow disabled:opacity-60"
         >
           {saveStatus === 'loading' ? 'Saving…' : 'Save Settings'}
-        </button>
+        </button>}
       </form>
     </div>
   );

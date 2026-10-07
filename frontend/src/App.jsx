@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route, Navigate, Outlet, useLocation } from 'rea
 import Sidebar from './components/Sidebar';
 import Navbar from './components/Navbar';
 import LoginPage from './pages/LoginPage';
+import ToastContainer from './components/ToastContainer';
 import DashboardPage from './pages/DashboardPage';
 import OrdersPage from './pages/OrdersPage';
 import InventoryPage from './pages/InventoryPage';
@@ -11,6 +12,7 @@ import RevenuePage from './pages/RevenuePage';
 import SettingsPage from './pages/SettingsPage';
 import ProfilePage from './pages/ProfilePage';
 import useRealtimeSync from './hooks/useRealtimeSync';
+import useReadOnly from './hooks/useReadOnly';
 import { fetchProfile } from './features/admin/adminSlice';
 import { fetchSettings } from './features/settings/settingsSlice';
 import { fetchAlerts } from './features/inventory/inventorySlice';
@@ -32,6 +34,7 @@ function DashboardLayout() {
   const revenueRange = useSelector((state) => state.revenue.range);
   const token = useSelector((state) => state.auth.token);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const readOnly = useReadOnly();
   const location = useLocation();
 
   // Keep the <html> class in sync with Redux theme state.
@@ -68,6 +71,11 @@ function DashboardLayout() {
       <Sidebar mobileOpen={mobileSidebarOpen} onClose={() => setMobileSidebarOpen(false)} />
       <div className="flex-1 flex flex-col overflow-hidden min-w-0">
         <Navbar onMenuClick={() => setMobileSidebarOpen((v) => !v)} />
+        {readOnly && (
+          <div className="px-4 sm:px-6 py-1.5 text-xs text-center font-medium text-brand-600 dark:text-brand-300 bg-brand-50 dark:bg-white/5">
+            Demo mode - you can explore everything, but changes are disabled.
+          </div>
+        )}
         <main className="flex-1 overflow-y-auto scrollbar-thin p-4 sm:p-6">
           <Outlet />
         </main>
@@ -79,6 +87,7 @@ function DashboardLayout() {
 export default function App() {
   return (
     <BrowserRouter>
+      <ToastContainer />
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route element={<RequireAuth />}>

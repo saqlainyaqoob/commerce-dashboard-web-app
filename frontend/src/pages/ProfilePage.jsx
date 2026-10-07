@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import useReadOnly from '../hooks/useReadOnly';
 import { fetchProfile, updateProfile, changePassword, resetSaveStatus, resetPasswordStatus } from '../features/admin/adminSlice';
 
 function initialsOf(name) {
@@ -14,6 +15,7 @@ export default function ProfilePage() {
   const [form, setForm] = useState(null);
   const [pwForm, setPwForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
   const [pwMismatch, setPwMismatch] = useState(false);
+  const readOnly = useReadOnly();
 
   useEffect(() => {
     if (!profile) dispatch(fetchProfile());
@@ -76,6 +78,11 @@ export default function ProfilePage() {
           </div>
         </div>
 
+        {readOnly && (
+          <div className="text-sm text-slate-500 dark:text-slate-300 bg-brand-50 dark:bg-white/5 rounded-lg px-3 py-2">
+            Demo account - profile is view-only.
+          </div>
+        )}
         {saveStatus === 'succeeded' && (
           <div className="text-sm text-accent-green bg-accent-green/10 rounded-lg px-3 py-2">Profile updated.</div>
         )}
@@ -83,7 +90,7 @@ export default function ProfilePage() {
           <div className="text-sm text-accent-red bg-accent-red/10 rounded-lg px-3 py-2">{saveError}</div>
         )}
 
-        <div className="grid grid-cols-2 gap-4">
+        <fieldset disabled={readOnly} className="min-w-0 grid grid-cols-2 gap-4">
           <div>
             <label className="text-xs font-semibold text-slate-400 uppercase">Name</label>
             <input
@@ -120,18 +127,18 @@ export default function ProfilePage() {
               className="mt-1 w-full text-sm bg-brand-50 dark:bg-white/5 border-none rounded-lg px-3 py-2.5 outline-none focus:ring-2 focus:ring-brand-400"
             />
           </div>
-        </div>
+        </fieldset>
 
-        <button
+        {!readOnly && <button
           type="submit"
           disabled={saveStatus === 'loading'}
           className="w-full bg-gradient-brand text-white font-semibold text-sm px-5 py-2.5 rounded-lg shadow-glow disabled:opacity-60"
         >
           {saveStatus === 'loading' ? 'Saving…' : 'Save Profile'}
-        </button>
+        </button>}
       </form>
 
-      <form onSubmit={handleChangePassword} className="dashboard-card space-y-4">
+      {!readOnly && <form onSubmit={handleChangePassword} className="dashboard-card space-y-4">
         <h3 className="font-semibold">Change Password</h3>
 
         {passwordStatus === 'succeeded' && (
@@ -184,7 +191,7 @@ export default function ProfilePage() {
         >
           {passwordStatus === 'loading' ? 'Updating…' : 'Change Password'}
         </button>
-      </form>
+      </form>}
     </div>
   );
 }

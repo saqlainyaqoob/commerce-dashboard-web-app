@@ -15,6 +15,22 @@ export const login = createAsyncThunk(
   }
 );
 
+// One-click read-only demo sign-in. Same result shape and same stored token
+// as login() - the backend issues the normal JWT + refresh cookie for the
+// demo account, so everything after this is the existing session flow.
+export const demoLogin = createAsyncThunk(
+  'auth/demoLogin',
+  async (_, { rejectWithValue }) => {
+    try {
+      const { data } = await axiosClient.post('/auth/demo-login');
+      localStorage.setItem(TOKEN_KEY, data.token);
+      return data; // { token, admin }
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.error || 'Could not start the demo');
+    }
+  }
+);
+
 // Real logout: tells the backend to revoke the refresh-token row (so the
 // httpOnly cookie can never be used to mint a new access token again),
 // then clears local state regardless of whether that call succeeded -
@@ -61,6 +77,18 @@ const authSlice = createSlice({
         state.token = action.payload.token;
       })
       .addCase(login.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.payload;
+      })
+      .addCase(demoLogin.pending, (state) => {
+        state.status = 'loading';
+        state.error = null;
+      })
+      .addCase(demoLogin.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.token = action.payload.token;
+      })
+      .addCase(demoLogin.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.payload;
       })

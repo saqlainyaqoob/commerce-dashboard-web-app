@@ -3,12 +3,14 @@ import { useDispatch, useSelector } from 'react-redux';
 import { X } from 'lucide-react';
 import { clearSelectedOrder, updateOrderStatus } from '../features/orders/ordersSlice';
 import Dropdown from './Dropdown';
+import useReadOnly from '../hooks/useReadOnly';
 
 const STATUSES = ['pending', 'processing', 'shipped', 'delivered', 'cancelled'];
 
 export default function OrderDetailModal() {
   const dispatch = useDispatch();
   const { selectedOrder, selectedOrderStatus } = useSelector((state) => state.orders);
+  const readOnly = useReadOnly();
 
   if (!selectedOrder) return null;
 
@@ -51,6 +53,7 @@ export default function OrderDetailModal() {
                 options={STATUSES.map((s) => ({ value: s, label: s[0].toUpperCase() + s.slice(1) }))}
                 className="mt-1 w-full"
                 buttonClassName="text-sm py-2"
+                disabled={readOnly}
               />
             </div>
 

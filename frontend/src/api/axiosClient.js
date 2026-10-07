@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { showToast } from '../utils/toast';
 
 const TOKEN_KEY = 'commercehq_token';
 const BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:5000/api' : '/api');
@@ -68,6 +69,14 @@ axiosClient.interceptors.response.use(
     // let LoginPage show its own error, with no refresh attempt or redirect.
     if (status === 401 && isLoginCall) {
       return Promise.reject(error);
+    }
+
+    // Fallback UX for the read-only demo account: if a write somehow reaches
+    // the API, the backend answers 403 with code DEMO_READ_ONLY. Only that
+    // specific code triggers the message, so any other 403 is left untouched.
+    // The error is still rejected below so callers' own handling is unchanged.
+    if (status === 403 && response?.data?.code === 'DEMO_READ_ONLY') {
+      showToast('Demo account is read-only. This action is not available in demo mode.');
     }
 
     if (status === 401 && !config._retried) {

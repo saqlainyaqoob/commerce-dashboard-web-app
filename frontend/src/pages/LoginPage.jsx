@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useLocation, Navigate } from 'react-router-dom';
-import { LogIn } from 'lucide-react';
-import { login } from '../features/auth/authSlice';
+import { LogIn, Eye } from 'lucide-react';
+import { login, demoLogin } from '../features/auth/authSlice';
 
 export default function LoginPage() {
   const dispatch = useDispatch();
@@ -18,13 +18,17 @@ export default function LoginPage() {
     return <Navigate to={redirectTo} replace />;
   }
 
-  async function handleSubmit(e) {
-    e.preventDefault();
-    const result = await dispatch(login({ email, password }));
-    if (login.fulfilled.match(result)) {
+  async function signIn(action) {
+    const result = await dispatch(action);
+    if (result.meta.requestStatus === 'fulfilled') {
       const redirectTo = location.state?.from?.pathname || '/';
       navigate(redirectTo, { replace: true });
     }
+  }
+
+  function handleSubmit(e) {
+    e.preventDefault();
+    signIn(login({ email, password }));
   }
 
   return (
@@ -74,6 +78,22 @@ export default function LoginPage() {
             <LogIn size={16} />
             {status === 'loading' ? 'Signing in…' : 'Sign in'}
           </button>
+
+            <div className="flex items-center gap-3 text-xs text-slate-400">
+              <span className="flex-1 h-px bg-black/5 dark:bg-white/10" />
+              or
+              <span className="flex-1 h-px bg-black/5 dark:bg-white/10" />
+            </div>
+            <button
+              type="button"
+              disabled={status === 'loading'}
+              onClick={() => signIn(demoLogin())}
+              className="w-full flex items-center justify-center gap-2 bg-brand-50 dark:bg-white/5
+                         text-brand-600 dark:text-brand-300 font-semibold text-sm py-2.5 rounded-lg disabled:opacity-60"
+            >
+              <Eye size={16} />
+              Try Demo (read-only)
+            </button>
         </form>
       </div>
     </div>

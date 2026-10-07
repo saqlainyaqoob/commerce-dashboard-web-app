@@ -1,5 +1,6 @@
 const bcrypt = require('bcryptjs');
 const db = require('../config/db');
+const { ROLES } = require('../utils/roles');
 const {
   signAccessToken,
   generateRefreshToken,
@@ -54,6 +55,34 @@ async function login(req, res, next) {
     delete admin.password_hash;
     const accessToken = await issueSession(res, admin);
 
+    res.json({ token: accessToken, admin });
+  } catch (err) {
+    next(err);
+  }
+}
+
+// POST /api/auth/demo-login   (no body)
+// One-click sign-in for the public read-only demo account, so visitors don't
+// need to type or know any credentials. It only ever signs in an admin whose
+// role is 'Demo Admin' (never a real admin), and it goes through the exact
+// same session issuing as login(): same JWT + refresh cookie. Every write is
+// still rejected by middleware/auth.js. Rate-limited at the route level.
+async function demoLogin(req, res, next) {
+  try {
+    const preferred = (process.env.DEMO_ADMIN_EMAIL || '').toLowerCase().trim();
+    const { rows } = await db.query(
+      `SELECT ${PUBLIC_COLUMNS} FROM admins
+       WHERE role = $1
+       ORDER BY (email = $2) DESC, id ASC
+       LIMIT 1`,
+      [ROLES.DEMO, preferred]
+    );
+    if (!rows.length) {
+      return res.status(404).json({ error: 'Demo account is not set up yet' });
+    }
+
+    const admin = rows[0];
+    const accessToken = await issueSession(res, admin);
     res.json({ token: accessToken, admin });
   } catch (err) {
     next(err);
@@ -130,4 +159,4 @@ async function me(req, res, next) {
   }
 }
 
-module.exports = { login, refresh, logout, me };
+module.exports = { login, demoLogin, refresh, logout, me };

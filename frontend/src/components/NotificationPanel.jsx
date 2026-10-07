@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import useReadOnly from '../hooks/useReadOnly';
 import {
   Bell,
   AlertTriangle,
@@ -38,6 +39,7 @@ export default function NotificationPanel() {
   const navigate = useNavigate();
 
   const { alerts } = useSelector((state) => state.inventory);
+  const readOnly = useReadOnly();
 
   const [open, setOpen] = useState(false);
 
@@ -72,7 +74,7 @@ export default function NotificationPanel() {
   function handleAlertClick(alert) {
     console.log('NOTIFICATION CLICKED:', alert);
 
-    if (!alert.is_read) {
+    if (!alert.is_read && !readOnly) {
       console.log('MARKING ALERT READ:', alert.id);
       dispatch(markAlertRead(alert.id));
     }
@@ -131,7 +133,7 @@ export default function NotificationPanel() {
               </p>
             </div>
 
-            {unreadCount > 0 && (
+            {unreadCount > 0 && !readOnly && (
               <button
                 onClick={() => dispatch(markAllAlertsRead())}
                 className="flex items-center gap-1 text-xs font-semibold text-brand-600 dark:text-brand-300 hover:underline"
