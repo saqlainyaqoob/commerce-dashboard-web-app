@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { X } from "lucide-react";
@@ -7,7 +8,6 @@ import {
   updateProduct,
   resetSaveStatus,
 } from "../features/inventory/inventorySlice";
-// import Dropdown from "../components/Dropdown";
 
 const EMPTY = {
   name: "",
@@ -18,12 +18,17 @@ const EMPTY = {
   reorder_level: "",
 };
 
-// Handles both "add product" (product = null) and "edit product"
-// (product = the row being edited) against the real backend endpoints.
-export default function ProductFormModal({ product, categories, onClose }) {
+export default function ProductFormModal({
+  product,
+  categories,
+  onClose,
+  readOnly = false,
+}) {
   const dispatch = useDispatch();
-  const { saveStatus, saveError } = useSelector((state) => state.inventory);
-  const settings = useSelector((state) => state.settings.data);
+  const { saveStatus, saveError } = useSelector(
+    (state) => state.inventory
+  );
+
   const [form, setForm] = useState(EMPTY);
 
   useEffect(() => {
@@ -39,11 +44,14 @@ export default function ProductFormModal({ product, categories, onClose }) {
     } else {
       setForm(EMPTY);
     }
+
     dispatch(resetSaveStatus());
   }, [product, dispatch]);
 
   useEffect(() => {
-    if (saveStatus === "succeeded") onClose();
+    if (saveStatus === "succeeded") {
+      onClose();
+    }
   }, [saveStatus, onClose]);
 
   function handleChange(field, value) {
@@ -52,6 +60,10 @@ export default function ProductFormModal({ product, categories, onClose }) {
 
   function handleSubmit(e) {
     e.preventDefault();
+
+    // Prevent read-only users from creating or updating products.
+    if (readOnly) return;
+
     const payload = {
       name: form.name,
       sku: form.sku,
@@ -66,23 +78,22 @@ export default function ProductFormModal({ product, categories, onClose }) {
           }
         : {
             stock_quantity:
-              form.stock_quantity === "" ? 0 : parseInt(form.stock_quantity),
+              form.stock_quantity === ""
+                ? 0
+                : parseInt(form.stock_quantity),
             reorder_level:
               form.reorder_level === ""
                 ? undefined
                 : parseInt(form.reorder_level),
           }),
     };
+
     if (product) {
       dispatch(updateProduct({ id: product.id, ...payload }));
     } else {
       dispatch(createProduct(payload));
     }
   }
-
-  // const reorderPlaceholder = settings
-  //   ? `Default: ${settings.low_stock_default_threshold}`
-  //   : 'e.g. 10';
 
   const reorderPlaceholder = 10;
 
@@ -100,14 +111,22 @@ export default function ProductFormModal({ product, categories, onClose }) {
           <h3 className="font-semibold text-lg">
             {product ? "Edit Product" : "Add Product"}
           </h3>
+
           <button
             type="button"
             onClick={onClose}
             className="text-slate-400 hover:text-slate-600"
+            aria-label="Close product form"
           >
             <X size={18} />
           </button>
         </div>
+
+        {readOnly && (
+          <div className="text-sm text-slate-500 dark:text-slate-400 bg-brand-50 dark:bg-white/5 rounded-lg px-3 py-2">
+            Demo mode: You can fill in this form, but you cannot save changes.
+          </div>
+        )}
 
         {saveError && (
           <div className="text-sm text-accent-red bg-accent-red/10 rounded-lg px-3 py-2">
@@ -139,24 +158,23 @@ export default function ProductFormModal({ product, categories, onClose }) {
               className="mt-1 w-full text-sm bg-brand-50 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-brand-400"
             />
           </div>
+
           <div>
-            <div>
-              <label className="text-xs font-semibold text-slate-400 uppercase">
-                Category
-              </label>
-            
-              <Dropdown
-                value={form.category}
-                onChange={(value) => handleChange("category", value)}
-                options={categories.map((c) => ({
-                  value: c,
-                  label: c,
-                }))}
-                placeholder="Select category"
-                buttonClassName="mt-1 h-[36px]"
-                className="w-full text-sm bg-brand-50 dark:bg-white/5 border-none rounded-lg outline-none focus:ring-2 focus:ring-brand-400"
-              />
-            </div>
+            <label className="text-xs font-semibold text-slate-400 uppercase">
+              Category
+            </label>
+
+            <Dropdown
+              value={form.category}
+              onChange={(value) => handleChange("category", value)}
+              options={categories.map((c) => ({
+                value: c,
+                label: c,
+              }))}
+              placeholder="Select category"
+              buttonClassName="mt-1 h-[36px]"
+              className="w-full text-sm bg-brand-50 dark:bg-white/5 border-none rounded-lg outline-none focus:ring-2 focus:ring-brand-400"
+            />
           </div>
         </div>
 
@@ -175,6 +193,7 @@ export default function ProductFormModal({ product, categories, onClose }) {
               className="mt-1 w-full text-sm bg-brand-50 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-brand-400"
             />
           </div>
+
           <div>
             <label className="text-xs font-semibold text-slate-400 uppercase">
               Reorder Level
@@ -207,14 +226,18 @@ export default function ProductFormModal({ product, categories, onClose }) {
 
         <button
           type="submit"
-          disabled={saveStatus === "loading"}
-          className="w-full bg-gradient-brand text-white font-semibold text-sm py-2.5 rounded-lg shadow-glow disabled:opacity-60"
+          disabled={readOnly || saveStatus === "loading"}
+          className="w-full bg-gradient-brand text-white font-semibold text-sm py-2.5 rounded-lg shadow-glow disabled:cursor-not-allowed"
         >
-          {saveStatus === "loading"
-            ? "Saving…"
-            : product
+          {readOnly
+            ? product
               ? "Save Changes"
-              : "Add Product"}
+              : "Add Product"
+            : saveStatus === "loading"
+              ? "Saving…"
+              : product
+                ? "Save Changes"
+                : "Add Product"}
         </button>
       </form>
     </div>

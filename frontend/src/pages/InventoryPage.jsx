@@ -148,14 +148,12 @@ export default function InventoryPage() {
             />
             Show archived
           </label>
-          {!readOnly && (
-            <button
-              onClick={() => setModalProduct(null)}
-              className="w-full sm:w-auto ml-auto flex items-center justify-center gap-1.5 bg-gradient-brand text-white text-sm font-semibold px-3 py-2 rounded-lg shadow-glow"
-            >
-              <Plus size={16} /> Add Product
-            </button>
-          )}
+          <button
+            onClick={() => setModalProduct(null)}
+            className="w-full sm:w-auto ml-auto flex items-center justify-center gap-1.5 bg-gradient-brand text-white text-sm font-semibold px-3 py-2 rounded-lg shadow-glow"
+          >
+            <Plus size={16} /> Add Product
+          </button>
         </div>
 
         <div className="overflow-x-auto scrollbar-thin">
@@ -167,7 +165,9 @@ export default function InventoryPage() {
                 <th className="py-2 font-medium">Price</th>
                 <th className="py-2 font-medium">Stock</th>
                 <th className="py-2 font-medium pl-3">Status</th>
-                {!readOnly && <th className="py-2 pr-3 font-medium text-right">Actions</th>}
+                {!readOnly && (
+                  <th className="py-2 pr-3 font-medium text-right">Actions</th>
+                )}
               </tr>
             </thead>
             <tbody>
@@ -197,39 +197,43 @@ export default function InventoryPage() {
 
                   <td className="py-3 pr-4">
                     <div className="flex items-center gap-1.5 whitespace-nowrap">
-                      {!readOnly && <button
-                        disabled={!p.is_active}
-                        onClick={() =>
-                          dispatch(
-                            adjustStock({
-                              id: p.id,
-                              quantityChange: -1,
-                            }),
-                          )
-                        }
-                        className="w-6 h-6 shrink-0 rounded-md bg-brand-50 dark:bg-white/5 flex items-center justify-center disabled:opacity-30"
-                      >
-                        <Minus size={12} />
-                      </button>}
+                      {!readOnly && (
+                        <button
+                          disabled={!p.is_active}
+                          onClick={() =>
+                            dispatch(
+                              adjustStock({
+                                id: p.id,
+                                quantityChange: -1,
+                              }),
+                            )
+                          }
+                          className="w-6 h-6 shrink-0 rounded-md bg-brand-50 dark:bg-white/5 flex items-center justify-center disabled:opacity-30"
+                        >
+                          <Minus size={12} />
+                        </button>
+                      )}
 
                       <span className="w-8 shrink-0 text-center font-medium">
                         {p.stock_quantity}
                       </span>
 
-                      {!readOnly && <button
-                        disabled={!p.is_active}
-                        onClick={() =>
-                          dispatch(
-                            adjustStock({
-                              id: p.id,
-                              quantityChange: 1,
-                            }),
-                          )
-                        }
-                        className="w-6 h-6 shrink-0 rounded-md bg-brand-50 dark:bg-white/5 flex items-center justify-center disabled:opacity-30"
-                      >
-                        <Plus size={12} />
-                      </button>}
+                      {!readOnly && (
+                        <button
+                          disabled={!p.is_active}
+                          onClick={() =>
+                            dispatch(
+                              adjustStock({
+                                id: p.id,
+                                quantityChange: 1,
+                              }),
+                            )
+                          }
+                          className="w-6 h-6 shrink-0 rounded-md bg-brand-50 dark:bg-white/5 flex items-center justify-center disabled:opacity-30"
+                        >
+                          <Plus size={12} />
+                        </button>
+                      )}
                     </div>
                   </td>
 
@@ -239,42 +243,47 @@ export default function InventoryPage() {
                     </span>
                   </td>
 
-                  {!readOnly && <td className="py-3 whitespace-nowrap">
-                    <div className="flex items-center justify-end gap-1.5">
-                      <button
-                        onClick={() => setModalProduct(p)}
-                        className="w-8 h-8 shrink-0 rounded-lg bg-brand-50 dark:bg-white/5 text-brand-600 dark:text-brand-300 flex items-center justify-center"
-                        title="Edit"
-                      >
-                        <Pencil size={14} />
-                      </button>
+                  {!readOnly && (
+                    <td className="py-3 whitespace-nowrap">
+                      <div className="flex items-center justify-end gap-1.5">
+                        <button
+                          onClick={() => setModalProduct(p)}
+                          className="w-8 h-8 shrink-0 rounded-lg bg-brand-50 dark:bg-white/5 text-brand-600 dark:text-brand-300 flex items-center justify-center"
+                          title="Edit"
+                        >
+                          <Pencil size={14} />
+                        </button>
 
-                      <button
-                        onClick={() =>
-                          dispatch(
-                            updateProduct({
-                              id: p.id,
-                              is_active: !p.is_active,
-                            }),
-                          )
-                        }
-                        className="w-8 h-8 shrink-0 rounded-lg bg-brand-50 dark:bg-white/5 text-slate-500 dark:text-slate-300 flex items-center justify-center"
-                        title={p.is_active ? "Archive" : "Restore"}
-                      >
-                        {p.is_active ? (
-                          <Archive size={14} />
-                        ) : (
-                          <ArchiveRestore size={14} />
-                        )}
-                      </button>
- </div>
-                  </td>}
+                        <button
+                          onClick={() =>
+                            dispatch(
+                              updateProduct({
+                                id: p.id,
+                                is_active: !p.is_active,
+                              }),
+                            )
+                          }
+                          className="w-8 h-8 shrink-0 rounded-lg bg-brand-50 dark:bg-white/5 text-slate-500 dark:text-slate-300 flex items-center justify-center"
+                          title={p.is_active ? "Archive" : "Restore"}
+                        >
+                          {p.is_active ? (
+                            <Archive size={14} />
+                          ) : (
+                            <ArchiveRestore size={14} />
+                          )}
+                        </button>
+                      </div>
+                    </td>
+                  )}
                 </tr>
               ))}
 
               {status === "succeeded" && products.length === 0 && (
                 <tr>
-                  <td colSpan={readOnly ? 5 : 6} className="py-10 text-center text-slate-400">
+                  <td
+                    colSpan={readOnly ? 5 : 6}
+                    className="py-10 text-center text-slate-400"
+                  >
                     No products match these filters.
                   </td>
                 </tr>
@@ -284,11 +293,12 @@ export default function InventoryPage() {
         </div>
       </div>
 
-      {!readOnly && modalProduct !== undefined && (
+      {modalProduct !== undefined && (
         <ProductFormModal
           product={modalProduct}
           categories={categories}
           onClose={() => setModalProduct(undefined)}
+          readOnly={readOnly}
         />
       )}
     </div>

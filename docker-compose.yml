@@ -1,7 +1,7 @@
 services:
   postgres:
     image: postgres:18-alpine
-    container_name: commerce_dashboard_vercel_db
+    container_name: commerce_dashboard_db
     restart: unless-stopped
 
     environment:
@@ -24,7 +24,7 @@ services:
   backend:
     build:
       context: ./backend
-    container_name: commerce_dashboard_vercel_backend
+    container_name: commerce_dashboard_backend
     restart: unless-stopped
 
     env_file:
@@ -39,3 +39,6 @@ services:
 
 volumes:
   pgdata:
+    external: true
+    name: commerce-dashboard_pgdata
+  

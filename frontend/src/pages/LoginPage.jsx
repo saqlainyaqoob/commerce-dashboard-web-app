@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useLocation, Navigate } from 'react-router-dom';
-import { LogIn, Eye } from 'lucide-react';
+import { LogIn, Eye, EyeOff } from 'lucide-react';
 import { login, demoLogin } from '../features/auth/authSlice';
 
 export default function LoginPage() {
@@ -11,6 +11,7 @@ export default function LoginPage() {
   const { token, status, error } = useSelector((state) => state.auth);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   // Already logged in - don't show the login form again.
   if (token) {
@@ -46,6 +47,7 @@ export default function LoginPage() {
               {error}
             </div>
           )}
+
           <div>
             <label className="text-xs font-semibold text-slate-400 uppercase">Email</label>
             <input
@@ -58,42 +60,58 @@ export default function LoginPage() {
               className="mt-1 w-full text-sm bg-brand-50 dark:bg-white/5 border-none rounded-lg px-3 py-2.5 outline-none focus:ring-2 focus:ring-brand-400"
             />
           </div>
+
           <div>
             <label className="text-xs font-semibold text-slate-400 uppercase">Password</label>
-            <input
-              type="password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              className="mt-1 w-full text-sm bg-brand-50 dark:bg-white/5 border-none rounded-lg px-3 py-2.5 outline-none focus:ring-2 focus:ring-brand-400"
-            />
+
+            <div className="relative mt-1">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                className="w-full text-sm bg-brand-50 dark:bg-white/5 border-none rounded-lg pl-3 pr-10 py-2.5 outline-none focus:ring-2 focus:ring-brand-400"
+              />
+
+              <button
+                type="button"
+                onClick={() => setShowPassword((prev) => !prev)}
+                className="absolute inset-y-0 right-3 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                title={showPassword ? 'Hide password' : 'Show password'}
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
           </div>
+
           <button
             type="submit"
             disabled={status === 'loading'}
             className="w-full flex items-center justify-center gap-2 bg-gradient-brand text-white font-semibold
-                       text-sm py-2.5 rounded-lg shadow-glow disabled:opacity-60"
+                       text-sm py-2.5 rounded-lg shadow-glow disabled:opacity-60 cursor-pointer"
           >
             <LogIn size={16} />
             {status === 'loading' ? 'Signing in…' : 'Sign in'}
           </button>
 
-            <div className="flex items-center gap-3 text-xs text-slate-400">
-              <span className="flex-1 h-px bg-black/5 dark:bg-white/10" />
-              or
-              <span className="flex-1 h-px bg-black/5 dark:bg-white/10" />
-            </div>
-            <button
-              type="button"
-              disabled={status === 'loading'}
-              onClick={() => signIn(demoLogin())}
-              className="w-full flex items-center justify-center gap-2 bg-brand-50 dark:bg-white/5
-                         text-brand-600 dark:text-brand-300 font-semibold text-sm py-2.5 rounded-lg disabled:opacity-60"
-            >
-              <Eye size={16} />
-              Try Demo (read-only)
-            </button>
+          <div className="flex items-center gap-3 text-xs text-slate-400">
+            <span className="flex-1 h-px bg-black/5 dark:bg-white/10" />
+            or
+            <span className="flex-1 h-px bg-black/5 dark:bg-white/10" />
+          </div>
+
+          <button
+            type="button"
+            disabled={status === 'loading'}
+            onClick={() => signIn(demoLogin())}
+            className="w-full flex items-center justify-center gap-2 bg-brand-50 dark:bg-white/5
+                       text-brand-600 dark:text-brand-300 font-semibold text-sm py-2.5 rounded-lg disabled:opacity-60 cursor-pointer"
+          >
+            <Eye size={16} />
+            Try Demo (read-only)
+          </button>
         </form>
       </div>
     </div>
